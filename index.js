@@ -6,10 +6,10 @@
 
 // BASE IMPORTS AND CONFIGURATIONS =======
 import { config } from "dotenv";
-import { channelLink, Client, EmbedBuilder, Events, GatewayIntentBits, InteractionCollector, Message, ReactionCollector, Routes, SlashCommandBuilder } from "discord.js"; 
+import { channelLink, Client, EmbedBuilder, Events, GatewayIntentBits, InteractionCollector, Message, ReactionCollector, Routes, SlashCommandBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, InteractionType } from "discord.js"; 
 import { REST } from '@discordjs/rest'
 config();
-const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages]});
+const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMembers], disableEveryone:false});
 const BOT_TOKEN = process.env.TOKEN;
 const CLIENT_ID = process.env.ID;
 // END OF BASE IMPORTS AND CONFIGURATIONS ====================
@@ -21,7 +21,18 @@ client.on('ready', () => {
     });
 // END OF LOGIN =======================
 
-
+//WELCOME FEATURE =============== 
+client.on(Events.GuildMemberAdd, async member => {
+    const welcomeChannel = client.channels.cache.get('1052301370839019670');
+    if (welcomeChannel) {
+        welcomeChannel.send(
+            `
+            <@${member.id}> ∈ ORSC Community Server\nWelcome to ORSC Community server!
+            `
+        )
+    }
+})
+//============
 //EMBEDS ====
 const spaceEmbed = new EmbedBuilder().setColor('36393F').setDescription(
     `
@@ -61,7 +72,7 @@ const mailEmbed = new EmbedBuilder().setDescription(
 // MESSAGE CREATE EVENT ====
 client.on('messageCreate', msg => {
     if (msg.content === 'show') {
-        client.channels.cache.get('1052009826307280998').send(
+        client.channels.cache.get('1065258444413734955').send(
             {
                 embeds:[welcomeEmbed, spaceEmbed, rulesImgEmbed, rulesEmbed, spaceEmbed,socialsEmbed],
                 components: [
@@ -75,7 +86,7 @@ client.on('messageCreate', msg => {
                                 url:'https://www.youtube.com/@OperationsResearchSocietyClub',
                                 emoji: {
                                     name:'ytb',
-                                    id:'1068986449749360711',
+                                    id:'1068694418137297077',
                                 },                                
                             },
                             {
@@ -85,7 +96,7 @@ client.on('messageCreate', msg => {
                                 url:'https://www.instagram.com/orsocietyclub/',
                                 emoji: {
                                     name:'ig',
-                                    id:'1068985760931397693',
+                                    id:'1068918903209726073',
                                 },                                
                             },
                             {
@@ -95,7 +106,7 @@ client.on('messageCreate', msg => {
                                 url:'https://www.facebook.com/orsocietyclub',
                                 emoji: {
                                     name:'fb',
-                                    id:'1068985507897426010',
+                                    id:'1068918875590238268',
                                 },                                
                             },
                             {
@@ -105,7 +116,7 @@ client.on('messageCreate', msg => {
                                 url:'https://www.linkedin.com/company/orsocietyclub/',
                                 emoji: {
                                     name:'lIn',
-                                    id:'1068986398385909902',
+                                    id:'1068918934037864469',
                                 },                                
                             },
                             {
@@ -115,7 +126,7 @@ client.on('messageCreate', msg => {
                                 url:'https://www.tiktok.com/@opertions_research',
                                 emoji: {
                                     name:'tktk',
-                                    id:'1068985907883020288',
+                                    id:'1068916226526564352',
                                 },                                
                             },
                         ]
@@ -126,7 +137,7 @@ client.on('messageCreate', msg => {
 
     }
     else if (msg.content === 'show1') {
-        client.channels.cache.get('1052009826307280998').send(
+        client.channels.cache.get('1065258444413734955').send(
             {
                 embeds:[spaceEmbed,mailEmbed],
             }
@@ -135,9 +146,135 @@ client.on('messageCreate', msg => {
 
 })
 //END OF MESSAGE CREATE EVENT ========
+client.on(Events.InteractionCreate, interaction => {
+    //CHAT INPUT COMMAND
+    if (interaction.isChatInputCommand()){
+        if (interaction.commandName === 'post') {
+            const modalPost = new ModalBuilder()
+            .setTitle('Social media')
+            .setCustomId('socialpost')
+            .setComponents(
+            new ActionRowBuilder().setComponents(
+                new TextInputBuilder()
+                .setLabel('Description')
+                .setCustomId('description')
+                .setStyle(TextInputStyle.Paragraph)
+            ),
+            new ActionRowBuilder().setComponents(
+                new TextInputBuilder()
+                .setLabel('Facebook post link')
+                .setCustomId('fblink')
+                .setStyle(TextInputStyle.Short)
+            ),
+            new ActionRowBuilder().setComponents(
+                new TextInputBuilder()
+                .setLabel('Instagram post link')
+                .setCustomId('instalink')
+                .setStyle(TextInputStyle.Short)
+            ),
+            new ActionRowBuilder().setComponents(
+                new TextInputBuilder()
+                .setLabel('LinkedIn post link')
+                .setCustomId('lilink')
+                .setStyle(TextInputStyle.Short)
+            ),
+            );
+            interaction.showModal(modalPost)
+        }
+    else if (interaction.isChatInputCommand()){
+        const modalAnnouncement = new ModalBuilder()
+        .setTitle('Announcement')
+        .setCustomId('ann')
+        .setComponents(
+        new ActionRowBuilder().setComponents(
+                new TextInputBuilder()
+                .setLabel('Title')
+                .setCustomId('titleann')
+                .setStyle(TextInputStyle.Short)
+                .setRequired(false)
+        ),
+        new ActionRowBuilder().setComponents(
+            new TextInputBuilder()
+            .setLabel('Description')
+            .setCustomId('description')
+            .setStyle(TextInputStyle.Paragraph)
+        ),
+        new ActionRowBuilder().setComponents(
+            new TextInputBuilder()
+            .setLabel('Room ID')
+            .setCustomId('roomid')
+            .setStyle(TextInputStyle.Short)
+        ),
+        new ActionRowBuilder().setComponents(
+            new TextInputBuilder()
+            .setLabel('Unix timestamp')
+            .setCustomId('unix')
+            .setStyle(TextInputStyle.Short)
+        ),
+        );
+        interaction.showModal(modalAnnouncement)
+        
+    }
+    }
+    // END OF CHAT INPUT COMMAND
+    //MODAL SUBMIT
+    else if (interaction.type === InteractionType.ModalSubmit) {
+        if (interaction.customId === 'socialpost') {
+            const socialPostEmbed = new EmbedBuilder()
+            .setColor('036a71')
+            .setTitle('New social media post!')
+            .setDescription(interaction.fields.getTextInputValue('description'))
+            .addFields({name: "Check out on: ", value:`[Facebook](${interaction.fields.getTextInputValue('fblink')}) | [Instagram](${interaction.fields.getTextInputValue('instalink')}) | [LinkedIn](${interaction.fields.getTextInputValue('lilink')})`})
+            //send in main core server
+        client.channels.cache.get('1052284125228310568').send(
+            {
+                embeds:[socialPostEmbed],
+                content:`@everyone`
+            }
+            );
+        }
+        else if (interaction.customId === 'ann') {
+            let unixTimestamp = parseInt(interaction.fields.getTextInputValue('unix'));
+            const delay = unixTimestamp * 1000 - Date.now();
+            const annEmbed = new EmbedBuilder()
+            .setColor('036a71')
+            .setTitle(interaction.fields.getTextInputValue('titleann'))
+            .setDescription(interaction.fields.getTextInputValue('description'))
+            setTimeout(() => {
+                console.log('Timeout function executed');
+                client.channels.cache.get(`${interaction.fields.getTextInputValue('roomid')}`).send(
+                    {
+                        embeds:[annEmbed],
+                        content:`@everyone`
+                    }
+                    );
+            }, delay);
+            interaction.reply({
+                content:`Will be posted in ${delay} seconds`,
+                ephemeral:true,
+            })
+        }
+    }    
+     //END OF MODAL SUBMIT
+})
+
+// INTERACTIONS ==============
+
+
+
+//==================
 
 // COMMANDS LIST
-const commands = [];
+const commands = [
+    {
+        name:'post',
+        description:'Post social media announcements',
+    },
+    {
+        name:'announce', 
+        description:'posts an announcement given ID room'
+    },
+];
 // END OF COMMANDS LIST ============
 
 //DECLARING REST API FOR COMMANDS
